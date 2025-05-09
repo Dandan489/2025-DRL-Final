@@ -43,7 +43,6 @@ dependencies:
       - google-auth-oauthlib==0.4.6
       - grpcio==1.41.1
       - gym==0.23.1
-      - gym-microrts==0.0.0
       - gym-notices==0.0.8
       - identify==2.4.5
       - idna==3.3
