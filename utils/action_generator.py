@@ -24,8 +24,8 @@ class Action_Generator:
         return ret
 
     def reset_action(self):
-        self.action = np.full((self.h, self.w), [0,0,0,0,0,0,0])
+        self.action_plane = np.full((self.h, self.w, 7), [0,0,0,0,0,0,0])
     
-    def perform_on_grid(self, x, y, action):
+    def perform_on_grid(self, y, x, action):
         #assert action is a list/array of length 7
         self.action_plane[y][x] = action
