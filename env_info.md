@@ -35,7 +35,7 @@ Note: bold is the difference to the previous chart
 | hp | x | 10 | 4 | 1 | 4 | **8** | 1 |
 | minDamage | x | x | x | 1 | 2 | 4 | 1 |
 | maxDamage | x | x | x | 1 | 2 | 4 | 1 |
-| attackRange | x | x | x | 1 | 1 | 4 | 3 |
+| attackRange | x | x | x | 1 | 1 | 1 | 3 |
 | produceTime | x | **200** | **100** | 50 | 80 | 120 | 100 |
 | moveTime | x | x | x | 10 | 8 | **10** | 10 |
 | attackTime | x | x | x | 5 | 5 | 5 | 5 |
@@ -56,7 +56,7 @@ Note: bold is the difference to the previous chart
 | hp | x | 10 | 4 | 1 | 4 | 8 | 1 |
 | minDamage | x | x | x | **0** | **1** | **0** | 1 |
 | maxDamage | x | x | x | **2** | **3** | **6** | **2** |
-| attackRange | x | x | x | 1 | 1 | 4 | 3 |
+| attackRange | x | x | x | 1 | 1 | 1 | 3 |
 | produceTime | x | 200 | 100 | 50 | 80 | 120 | 100 |
 | moveTime | x | x | x | 10 | 8 | 10 | 10 |
 | attackTime | x | x | x | 5 | 5 | 5 | 5 |
