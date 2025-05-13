@@ -1,6 +1,6 @@
 # Environment Info
 
-## Unit Stat
+## Unit Type Table
 
 Default uses `VERSION_ORIGINAL`
 
