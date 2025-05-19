@@ -1,3 +1,6 @@
 [submodule "MicroRTS-Py"]
 	path = MicroRTS-Py
 	url = https://github.com/Farama-Foundation/MicroRTS-Py.git
+[submodule "MAPPO/mappo"]
+	path = MAPPO/mappo
+	url = https://github.com/zoeyuchao/mappo.git
