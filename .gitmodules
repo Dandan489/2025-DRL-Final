@@ -1,0 +1,7 @@
+[submodule "MAPPO/on-policy"]
+	path = MAPPO/on-policy
+	url = https://github.com/zoeyuchao/mappo.git
+
+[submodule "MicroRTS-Py"]
+	path = MicroRTS-Py
+	url = https://github.com/Farama-Foundation/MicroRTS-Py.git
