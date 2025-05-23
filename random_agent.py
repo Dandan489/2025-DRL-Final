@@ -71,7 +71,12 @@ env = MicroRTSGridModeVecEnv(
             map_paths=["maps/16x16/basesWorkers16x16A.xml"],
             reward_weight=np.array([10.0, 1.0, 1.0, 0.2, 1.0, 4.0]),
             cycle_maps="maps/16x16/basesWorkers16x16A.xml",
+            autobuild = False
         )
+
+print(env.observation_space.shape)
+print(env.action_space_dims)
+
 obs = env.reset()
 done = False
 step = 0
