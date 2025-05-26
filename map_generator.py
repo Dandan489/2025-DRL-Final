@@ -16,12 +16,12 @@ RANGED = 7
 PLAYER = 0
 ENEMY = 1
 
-saved_path = "/home/whitefox/user/university_works/DRL-Final-MicroRTS/2025-DRL-Final/MicroRTS-Py/gym_microrts/microrts/maps/custom"
+save_path = "MicroRTS-Py\gym_microrts\microrts\maps\\"
 
 
 class MapVisualizer:
     def __init__(self, path):
-        self.path = "maps/" + path
+        self.path = "maps\\" + path
         print(self.path)
         self.env = MicroRTSGridModeVecEnv(
             num_selfplay_envs=0,
@@ -29,14 +29,16 @@ class MapVisualizer:
             max_steps=2000,
             render_theme=2,
             ai2s=[microrts_ai.coacAI for _ in range(1)],
-            map_path=self.path,
+            map_paths=[self.path],
             reward_weight=np.array([10.0, 1.0, 1.0, 0.2, 1.0, 4.0]),
+            autobuild = False
         )
         obs = self.env.reset()
     def visualize(self):
-        self.env.render()
-        time.sleep(10)
-        self.env.close()
+        try:
+            self.env.render()
+        except Exception:
+            self.env.close()
 
 grid_data = namedtuple("grid_data", "hit_points, resources, owner, unit_types, terrain")    
 
@@ -128,3 +130,22 @@ class MapGenerator:
         # Write to file create if not exists
         with open(self.saved_path, 'x') as f:
             f.write(xml)
+            
+if __name__ == "__main__":
+    map_name = "AllLight.xml"
+    generator = MapGenerator(map_name, 8, 8)
+    
+    generator.clear()
+    generator.set_light(7, 0, PLAYER)
+    generator.set_light(7, 1, PLAYER)
+    generator.set_light(7, 2, PLAYER)
+    generator.set_light(7, 3, PLAYER)
+    
+    generator.set_light(0, 4, ENEMY)
+    generator.set_light(0, 5, ENEMY)
+    generator.set_light(0, 6, ENEMY)
+    generator.set_light(0, 7, ENEMY)
+    generator.generate()
+
+    visualizer = MapVisualizer(map_name)
+    visualizer.visualize()
