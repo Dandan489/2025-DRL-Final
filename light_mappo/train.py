@@ -29,7 +29,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_selfplay_envs",
         type = int,
-        default = 8
+        default = 16
     )
     parser.add_argument(
         "--ai2s",
@@ -59,7 +59,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--map_paths",
         type = list,
-        default = ["maps/12x12/basesWorkers12x12.xml"]
+        default = ["maps/4x4/basesWorkers4x4.xml"]
     )
     parser.add_argument(
         "--reward_weight",
@@ -161,6 +161,8 @@ def main(args):
     # env init
     envs = MicroRTSVecEnv(all_args)
     eval_envs = MicroRTSVecEnv(all_args) if all_args.use_eval else None
+    all_args.n_rollout_threads = envs.env.num_envs
+    all_args.n_eval_rollout_threads = envs.eval_envs.num_envs if all_args.use_eval else None
     num_agents = all_args.num_agents
 
     config = {
