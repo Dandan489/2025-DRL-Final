@@ -57,7 +57,7 @@ def generate_random_action(h, w, attack_range=7):
 
 
 num_bot_envs = 0
-h, w = 16, 16
+h, w = 24, 24
 env = MicroRTSGridModeVecEnv(
             num_selfplay_envs=24,
             num_bot_envs=0,
@@ -68,9 +68,9 @@ env = MicroRTSGridModeVecEnv(
             + [microrts_ai.randomBiasedAI for _ in range(min(num_bot_envs, 2))]
             + [microrts_ai.lightRushAI for _ in range(min(num_bot_envs, 2))]
             + [microrts_ai.workerRushAI for _ in range(min(num_bot_envs, 2))],
-            map_paths=["maps/16x16/basesWorkers16x16A.xml"],
+            map_paths=["maps/barricades24x24.xml"],
             reward_weight=np.array([10.0, 1.0, 1.0, 0.2, 1.0, 4.0]),
-            cycle_maps="maps/16x16/basesWorkers16x16A.xml",
+            cycle_maps="maps/barricades24x24.xml",
         )
 obs = env.reset()
 done = False
