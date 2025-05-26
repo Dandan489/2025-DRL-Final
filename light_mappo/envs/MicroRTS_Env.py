@@ -34,7 +34,7 @@ class MultiDiscrete:
 
 class MicroRTSVecEnv(object):
     def __init__(self, args):
-        self.num_agents = 6
+        self.num_agents = args.num_agents
 
         self.env = MicroRTSGridModeVecEnv(
             num_selfplay_envs = args.num_selfplay_envs,

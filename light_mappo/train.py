@@ -23,7 +23,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_agents",
         type = int,
-        default = 6,
+        default = 4,
         help = "number of players"
     )
     parser.add_argument(
