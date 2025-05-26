@@ -2,7 +2,7 @@ import numpy as np
 from gym_microrts import microrts_ai
 from types import SimpleNamespace
 
-from MicroRTS_Env import MicroRTSVecEnv
+from envs.MicroRTS_Env import MicroRTSVecEnv
 
 args = SimpleNamespace()
 args.num_selfplay_envs = 8
@@ -19,4 +19,5 @@ args.jvm_args = []
 
 env = MicroRTSVecEnv(args)
 env.reset()
-env.step(np.array([action_space.sample() for action_space in env.action_space]))
+env.env.get_action_mask()
+env.step(np.array([[action_space.sample() for action_space in env.action_space] for _ in range(env.env.num_envs)]))
