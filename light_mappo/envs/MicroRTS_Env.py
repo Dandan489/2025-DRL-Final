@@ -73,10 +73,11 @@ class MicroRTSVecEnv(object):
         new_shape = (*obs_space.shape[:-1], self.num_features)
         obs_space = Box(np.zeros(new_shape), np.ones(new_shape), shape = new_shape, dtype = np.int32)
         return obs_space
-
+            
     def reset(self):
         obs = self.env.reset()
         self.env.get_action_mask()
+        self._reset_agent_positions(obs)
         obs = self._obs_wrapper(obs)
         return obs
 
@@ -94,16 +95,29 @@ class MicroRTSVecEnv(object):
     def close(self):
         self.env.close()
 
+
     def _obs_wrapper(self, obs):
         idx = [0, 1, 2, 3, 4, 10, 11, 12, 13, 18, 19, 20, 21, 22, 26, 27, 28]
         self.agent = list(zip(*np.where(obs[..., 11] == 1)))
-        new_obs = np.repeat(obs[:, np.newaxis, :, :, idx], repeats = self.num_agents, axis = 1)
-        pos = np.expand_dims(np.zeros(new_obs.shape[:-1]), axis = -1)
-        idx = [0] * self.env.num_envs
-        for env, x, y in self.agent:
-            pos[env, idx[env], x, y, 0] = 1
-            idx[env] += 1
-        new_obs = np.concatenate((new_obs, pos), axis = -1)
+
+        # if agent doesn't exist from obs, remove it from agent_id_pos_map
+        new_agent_id_pos_map = []
+        for env_idx in range(self.env.num_envs):
+            env_dict = {}
+            for agent_id, (x, y) in self.agent_id_pos_map[env_idx].items():
+                if obs[env_idx, x, y, 11] == 1:
+                    env_dict[agent_id] = (x, y) 
+            new_agent_id_pos_map.append(env_dict)
+        self.agent_id_pos_map = new_agent_id_pos_map
+            
+        new_obs = np.repeat(obs[:, np.newaxis, :, :, idx], repeats=self.num_agents, axis=1)
+        pos = np.expand_dims(np.zeros(new_obs.shape[:-1]), axis=-1)
+
+        for env_idx in range(self.env.num_envs):
+            for agent_id, (x, y) in self.agent_id_pos_map[env_idx].items():
+                pos[env_idx, agent_id, x, y, 0] = 1
+
+        new_obs = np.concatenate((new_obs, pos), axis=-1)
         return new_obs
     
     def _reward_wrapper(self, reward):
@@ -126,7 +140,43 @@ class MicroRTSVecEnv(object):
             new_action[env, x, y, 0] = 5 if action[env, idx[env], 0] == 2 else action[env, idx[env], 0]
             new_action[env, x, y, [1, 6]] = action[env, idx[env], [1, 2]]
             idx[env] += 1
+
+        self._update_agent_positions(new_action)
         return new_action
     
     def render(self):
         print('render')
+
+
+    def _reset_agent_positions(self, obs):
+        """
+        for example self.agent_id_pos_map = [
+            { 0: (1, 3), 1: (3, 2) },                 # Env 0  {agent_id: (agent_pos), ...}
+            { 0: (2, 1), 1: (4, 0), 2: (5, 5) },      # Env 1  {agent_id: (agent_pos), ...}
+        ]
+        
+        """
+        self.agent_id_pos_map = []  
+    
+        for env_idx in range(self.env.num_envs):
+            positions = np.argwhere(obs[env_idx, :, :, 11] == 1)
+            positions = sorted(positions.tolist(), key=lambda x: (x[0], x[1]))
+            pos_dict = {agent_id: tuple(pos) for agent_id, pos in enumerate(positions)}
+            self.agent_id_pos_map.append(pos_dict)
+
+
+    def _update_agent_positions(self, action):
+        move_delta = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # N, E, S, W
+        for env_idx in range(self.env.num_envs):
+            for agent_id in list(self.agent_id_pos_map[env_idx].keys()):
+                x, y = self.agent_id_pos_map[env_idx][agent_id]
+                action_type = action[env_idx, x, y, 0]
+
+                if action_type == 1:  # move
+                    direction = int(action[env_idx, x, y, 1])
+                    dx, dy = move_delta[direction]
+                    new_x, new_y = x + dx, y + dy
+
+                    if 0 <= new_x < self.env.height and 0 <= new_y < self.env.width:
+                        self.agent_id_pos_map[env_idx][agent_id] = (new_x, new_y)
+        
