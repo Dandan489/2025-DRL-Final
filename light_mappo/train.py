@@ -30,12 +30,12 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_selfplay_envs",
         type = int,
-        default = 2
+        default = 12
     )
     parser.add_argument(
         "--ai2s",
         type = list,
-        default = [coacAI for _ in range(4)]
+        default = [coacAI for _ in range(8)]
     )
     parser.add_argument(
         "--partial_obs",

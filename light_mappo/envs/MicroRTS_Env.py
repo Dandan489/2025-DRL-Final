@@ -61,6 +61,9 @@ class MicroRTSVecEnv(object):
         self.observation_space = [self._obs_space_wrapper(self.env.observation_space) for _ in range(self.num_agents)]
         self.share_observation_space = [self._obs_space_wrapper(self.env.observation_space) for _ in range(self.num_agents)]
         self.action_space = [MultiDiscrete() for _ in range(self.num_agents)]
+        
+        self.agent_id_pos_map = [None] * self.env.num_envs
+        self.to_reset = [False] * self.env.num_envs
 
     def _obs_space_wrapper(self, obs_space):
         """
@@ -77,14 +80,21 @@ class MicroRTSVecEnv(object):
     def reset(self):
         obs = self.env.reset()
         self.env.get_action_mask()
-        self._reset_agent_positions(obs)
+        for env_idx in range(self.env.num_envs):
+            self._reset_agent_positions(env_idx, obs)
         obs = self._obs_wrapper(obs)
         return obs
 
     def step(self, action):
         action = self._action_wrapper(action)
         obs, reward, done, info = self.env.step(action)
+        for env_idx, to_reset in enumerate(self.to_reset):
+            if to_reset:
+                self._reset_agent_positions(env_idx, obs)
         self._update_agent_positions(action, obs)
+        for env_idx in range(self.env.num_envs):
+            if done[env_idx]:
+                self.to_reset[env_idx] = True
         self.env.get_action_mask()
         obs = self._obs_wrapper(obs)
         reward = self._reward_wrapper(reward)
@@ -95,7 +105,6 @@ class MicroRTSVecEnv(object):
 
     def close(self):
         self.env.close()
-
 
     def _obs_wrapper(self, obs):
         idx = [0, 1, 2, 3, 4, 10, 11, 12, 13, 18, 19, 20, 21, 22, 26, 27, 28]
@@ -147,7 +156,7 @@ class MicroRTSVecEnv(object):
         print('render')
 
 
-    def _reset_agent_positions(self, obs):
+    def _reset_agent_positions(self, env_idx, obs):
         """
         for example self.agent_id_pos_map = [
             # Env 0  {agent_id: (agent_pos, t_to_move, next_pos), ...}
@@ -157,13 +166,10 @@ class MicroRTSVecEnv(object):
         ]
         
         """
-        self.agent_id_pos_map = []
-    
-        for env_idx in range(self.env.num_envs):
-            positions = np.argwhere(obs[env_idx, :, :, 11] == 1)
-            positions = sorted(positions.tolist(), key=lambda x: (x[0], x[1]))
-            pos_dict = {agent_id: tuple(pos) + (-1, 0, 0) for agent_id, pos in enumerate(positions)}
-            self.agent_id_pos_map.append(pos_dict)
+        positions = np.argwhere(obs[env_idx, :, :, 11] == 1)
+        positions = sorted(positions.tolist(), key=lambda x: (x[0], x[1]))
+        pos_dict = {agent_id: tuple(pos) + (-1, 0, 0) for agent_id, pos in enumerate(positions)}
+        self.agent_id_pos_map[env_idx] = pos_dict
 
 
     def _update_agent_positions(self, action, obs):
