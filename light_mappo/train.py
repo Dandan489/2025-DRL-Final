@@ -4,6 +4,7 @@ import setproctitle
 import numpy as np
 from pathlib import Path
 import torch
+from gym_microrts.microrts_ai import coacAI
 
 from config import get_config
 from envs.MicroRTS_Env import MicroRTSVecEnv
@@ -29,12 +30,12 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_selfplay_envs",
         type = int,
-        default = 0
+        default = 12
     )
     parser.add_argument(
         "--ai2s",
         type = list,
-        default = []
+        default = [coacAI for _ in range(4)]
     )
     parser.add_argument(
         "--partial_obs",
@@ -44,7 +45,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--max_steps",
         type = int,
-        default = 2000
+        default = 1000
     )
     parser.add_argument(
         "--render_theme",
@@ -64,7 +65,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--reward_weight",
         type = list,
-        default = [0, 0, 0, 0, 1, 5]
+        default = [5, 1, 1, 1, 1, 1]
     )
     parser.add_argument(
         "--cycle_maps",
