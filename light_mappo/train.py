@@ -59,7 +59,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--map_paths",
         type = list,
-        default = ["maps/4x4/basesWorkers4x4.xml"]
+        default = ["maps/AllLight.xml"]
     )
     parser.add_argument(
         "--reward_weight",
