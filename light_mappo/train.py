@@ -35,7 +35,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--ai2s",
         type = list,
-        default = []
+        default = [coacAI for _ in range(4)]
     )
     parser.add_argument(
         "--partial_obs",
@@ -45,7 +45,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--max_steps",
         type = int,
-        default = 2000
+        default = 1000
     )
     parser.add_argument(
         "--render_theme",

@@ -8,6 +8,7 @@ cd MicroRTS-Py
 # modify MicroRTS-Py\gym_microrts\envs\vec_env.py line 94 to run ["powershell", "-ExecutionPolicy", "Bypass", "-File", "build.ps1"]
 poetry install
 pip install torch==1.12.1 --extra-index-url https://download.pytorch.org/whl/cu113
+python hello_world.py
 cd ..
 python random_agent.py
 ```
