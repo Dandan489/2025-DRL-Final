@@ -57,11 +57,13 @@ class MicroRTSVecEnv(object):
 
     def reset(self):
         obs = self.env.reset()
+        self.last_obs = obs
         obs = self._obs_wrapper(obs)
         return obs
 
     def step(self, action):
-        self.env.get_action_mask()
+        # self.env.get_action_mask() (should be done in action selection?)
+        self.last_action = action
         action = self._action_wrapper(action)
         obs, reward, done, info = self.env.step(action)
         obs = self._obs_wrapper(obs)
@@ -69,6 +71,7 @@ class MicroRTSVecEnv(object):
         done = self._done_wrapper(done)
         info = self._info_wrapper(info)
         self.env.render()
+        self.last_obs = obs
         return obs, reward, done, info
 
     def close(self):
@@ -80,9 +83,72 @@ class MicroRTSVecEnv(object):
         return obs
     
     # TODO
-    def _reward_wrapper(self, reward):
-        reward = np.expand_dims(np.repeat(reward[:, np.newaxis, ...], self.num_agents, axis = 1), axis = -1)
-        return reward
+    def _reward_wrapper(self, reward, new_obs, done):
+        last_action = self.last_action
+        last_obs = self.last_obs
+        agent_positions = self.agent_pos
+        w = self.env.width
+        h = self.env.height
+        
+        num_envs, _, _ = last_action.shape
+        num_agents = len(agent_positions)
+        rewards = np.zeros((num_envs, num_agents), dtype=np.float32)
+
+        for agent_id, pos in enumerate(agent_positions):
+            x, y = pos // w, pos % w
+            for env in range(num_envs):
+                action = last_action[env, agent_id]
+                if action[0] != 5:  # not an attack
+                    continue
+
+                rel_idx = action[6].item()
+                if not (0 <= rel_idx < 49):
+                    continue  # invalid relative index
+
+                cx, cy = 3, 3  # center of 7x7
+                dx = (rel_idx // 7) - cx
+                dy = (rel_idx % 7) - cy
+                tx, ty = x + dx, y + dy
+
+                if not (0 <= tx < h and 0 <= ty < w):
+                    continue  # target outside map
+
+                attacker_owner = np.argmax(last_obs[env, x, y, 10:13]).item()
+                target_owner = np.argmax(last_obs[env, tx, ty, 10:13]).item()
+
+                if target_owner == 0:
+                    continue  # no unit there
+
+                if target_owner != attacker_owner:
+                    rewards[env, agent_id] += 1  # hit enemy
+                else:
+                    rewards[env, agent_id] -= 1  # hit ally
+
+        # Win/loss rewards
+        for env in range(num_envs):
+            if not done[env]:
+                continue
+
+            owner_planes = new_obs[env, :, :, 10:13].reshape(-1, 3).sum(dim=0)
+            p1_alive = owner_planes[1].item() > 0
+            p2_alive = owner_planes[2].item() > 0
+
+            for agent_id in range(num_agents):
+                ax, ay = agent_positions[agent_id] // w, agent_positions[agent_id] % w
+                agent_owner = np.argmax(last_obs[env, ax, ay, 10:13]).item()
+
+                if agent_owner == 1:
+                    if p1_alive and not p2_alive:
+                        rewards[env, agent_id] += 10
+                    elif not p1_alive and p2_alive:
+                        rewards[env, agent_id] -= 10
+                elif agent_owner == 2:
+                    if p2_alive and not p1_alive:
+                        rewards[env, agent_id] += 10
+                    elif not p2_alive and p1_alive:
+                        rewards[env, agent_id] -= 10
+
+        return rewards
     
     # TODO
     def _done_wrapper(self, done):
@@ -95,8 +161,15 @@ class MicroRTSVecEnv(object):
 
     # TODO
     def _action_wrapper(self, action):
-        action = action[:, 0, :]
-        return action
+        num_envs, num_agents, action_dim = action.shape
+        grid_size = self.env.width * self.env.height
+        grid_action = np.zeros((num_envs, grid_size * action_dim), dtype=action.dtype)
+        for agent_id in range(num_agents):
+            pos_index = self.agent_pos[agent_id] # TBD according to agent_pos's shape
+            start = pos_index * 7
+            end = start + 7
+            grid_action[:, start:end] = action[:, agent_id, :]
+        return grid_action
     
     def render(self):
         print('render')
