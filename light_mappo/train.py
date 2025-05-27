@@ -4,6 +4,7 @@ import setproctitle
 import numpy as np
 from pathlib import Path
 import torch
+from gym_microrts.microrts_ai import coacAI
 
 from config import get_config
 from envs.MicroRTS_Env import MicroRTSVecEnv
@@ -29,7 +30,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_selfplay_envs",
         type = int,
-        default = 0
+        default = 16
     )
     parser.add_argument(
         "--ai2s",
