@@ -84,6 +84,7 @@ class MicroRTSVecEnv(object):
     def step(self, action):
         action = self._action_wrapper(action)
         obs, reward, done, info = self.env.step(action)
+        self._update_agent_positions(action, obs)
         self.env.get_action_mask()
         obs = self._obs_wrapper(obs)
         reward = self._reward_wrapper(reward)
@@ -104,9 +105,9 @@ class MicroRTSVecEnv(object):
         new_agent_id_pos_map = []
         for env_idx in range(self.env.num_envs):
             env_dict = {}
-            for agent_id, (x, y) in self.agent_id_pos_map[env_idx].items():
+            for agent_id, (x, y, t, nx, ny) in self.agent_id_pos_map[env_idx].items():
                 if obs[env_idx, x, y, 11] == 1:
-                    env_dict[agent_id] = (x, y) 
+                    env_dict[agent_id] = (x, y, t, nx, ny)
             new_agent_id_pos_map.append(env_dict)
         self.agent_id_pos_map = new_agent_id_pos_map
             
@@ -114,7 +115,7 @@ class MicroRTSVecEnv(object):
         pos = np.expand_dims(np.zeros(new_obs.shape[:-1]), axis=-1)
 
         for env_idx in range(self.env.num_envs):
-            for agent_id, (x, y) in self.agent_id_pos_map[env_idx].items():
+            for agent_id, (x, y, *_) in self.agent_id_pos_map[env_idx].items():
                 pos[env_idx, agent_id, x, y, 0] = 1
 
         new_obs = np.concatenate((new_obs, pos), axis=-1)
@@ -135,13 +136,12 @@ class MicroRTSVecEnv(object):
         new_action = np.zeros((self.env.num_envs, self.env.height, self.env.width, 7))
         action = np.where(action == 1)[-1].reshape((self.env.num_envs, self.num_agents, -1))
         action -= np.array([0, 3, 7])
-        idx = [0] * self.env.num_envs
-        for env, x, y in self.agent:
-            new_action[env, x, y, 0] = 5 if action[env, idx[env], 0] == 2 else action[env, idx[env], 0]
-            new_action[env, x, y, [1, 6]] = action[env, idx[env], [1, 2]]
-            idx[env] += 1
+        for env_idx in range(self.env.num_envs):
+            print(env_idx, self.agent_id_pos_map[env_idx].items())
+            for agent_id, (x, y, *_) in self.agent_id_pos_map[env_idx].items():
+                new_action[env_idx, x, y, 0] = 5 if action[env_idx, agent_id, 0] == 2 else action[env_idx, agent_id, 0]
+                new_action[env_idx, x, y, [1, 6]] = action[env_idx, agent_id, [1, 2]]
 
-        self._update_agent_positions(new_action)
         return new_action
     
     def render(self):
@@ -151,32 +151,41 @@ class MicroRTSVecEnv(object):
     def _reset_agent_positions(self, obs):
         """
         for example self.agent_id_pos_map = [
-            { 0: (1, 3), 1: (3, 2) },                 # Env 0  {agent_id: (agent_pos), ...}
-            { 0: (2, 1), 1: (4, 0), 2: (5, 5) },      # Env 1  {agent_id: (agent_pos), ...}
+            # Env 0  {agent_id: (agent_pos, t_to_move, next_pos), ...}
+            { 0: (1, 3, -1, 0, 0), 1: (3, 2, 5, 3, 1) },
+            # Env 1  {agent_id: (agent_pos, t_to_move, next_pos), ...}
+            { 0: (2, 1, -1, 0, 0), 1: (4, 0, 3, 3, 0), 2: (5, 5, 6, 5, 6) },
         ]
         
         """
-        self.agent_id_pos_map = []  
+        self.agent_id_pos_map = []
     
         for env_idx in range(self.env.num_envs):
             positions = np.argwhere(obs[env_idx, :, :, 11] == 1)
             positions = sorted(positions.tolist(), key=lambda x: (x[0], x[1]))
-            pos_dict = {agent_id: tuple(pos) for agent_id, pos in enumerate(positions)}
+            pos_dict = {agent_id: tuple(pos) + (-1, 0, 0) for agent_id, pos in enumerate(positions)}
             self.agent_id_pos_map.append(pos_dict)
 
 
-    def _update_agent_positions(self, action):
+    def _update_agent_positions(self, action, obs):
         move_delta = [(-1, 0), (0, 1), (1, 0), (0, -1)]  # N, E, S, W
         for env_idx in range(self.env.num_envs):
             for agent_id in list(self.agent_id_pos_map[env_idx].keys()):
-                x, y = self.agent_id_pos_map[env_idx][agent_id]
-                action_type = action[env_idx, x, y, 0]
+                x, y, t, nx, ny = self.agent_id_pos_map[env_idx][agent_id]
 
-                if action_type == 1:  # move
-                    direction = int(action[env_idx, x, y, 1])
-                    dx, dy = move_delta[direction]
-                    new_x, new_y = x + dx, y + dy
+                if t == 0: # time to move
+                    self.agent_id_pos_map[env_idx][agent_id] = (nx, ny, -1, 0, 0)
+                else:
+                    self.agent_id_pos_map[env_idx][agent_id] = (x, y, t - 1, nx, ny)
+                
+                if t < 0: # not moving and attacking
+                    action_type = action[env_idx, x, y, 0]
+                    if action_type == 1:  # move
+                        direction = int(action[env_idx, x, y, 1])
+                        dx, dy = move_delta[direction]
+                        new_x, new_y = x + dx, y + dy
 
-                    if 0 <= new_x < self.env.height and 0 <= new_y < self.env.width:
-                        self.agent_id_pos_map[env_idx][agent_id] = (new_x, new_y)
+                        if 0 <= new_x < self.env.height and 0 <= new_y < self.env.width \
+                            and obs[env_idx, new_x, new_y, 13] == 1:
+                            self.agent_id_pos_map[env_idx][agent_id] = (x, y, 8, new_x, new_y)
         

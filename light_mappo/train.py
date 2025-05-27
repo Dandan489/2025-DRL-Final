@@ -30,7 +30,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_selfplay_envs",
         type = int,
-        default = 12
+        default = 16
     )
     parser.add_argument(
         "--ai2s",
