@@ -8,10 +8,9 @@ class MultiDiscrete:
     Move Parameter: [0, 3] (north, east, south, west)
     Relative Attack Position: [0, 48] ((0, 0) to (6, 6))
     """
-    def __init__(self, nvec):
-        size = len(nvec) // 7
-        self.low = np.zeros(3 * size, dtype = int)
-        self.high = np.array([2, 3, 48] * size, dtype = int)
+    def __init__(self):
+        self.low = np.zeros(3, dtype = int)
+        self.high = np.array([2, 3, 48], dtype = int)
         self.num_discrete_space = self.low.shape[0]
         self.n = np.sum(self.high) + 2
 
@@ -61,7 +60,7 @@ class MicroRTSVecEnv(object):
         
         self.observation_space = [self._obs_space_wrapper(self.env.observation_space) for _ in range(self.num_agents)]
         self.share_observation_space = [self._obs_space_wrapper(self.env.observation_space) for _ in range(self.num_agents)]
-        self.action_space = [MultiDiscrete(self.env.action_space.nvec) for _ in range(self.num_agents)]
+        self.action_space = [MultiDiscrete() for _ in range(self.num_agents)]
 
     def _obs_space_wrapper(self, obs_space):
         """
@@ -77,13 +76,14 @@ class MicroRTSVecEnv(object):
 
     def reset(self):
         obs = self.env.reset()
+        self.env.get_action_mask()
         obs = self._obs_wrapper(obs)
         return obs
 
     def step(self, action):
-        self.env.get_action_mask()
         action = self._action_wrapper(action)
         obs, reward, done, info = self.env.step(action)
+        self.env.get_action_mask()
         obs = self._obs_wrapper(obs)
         reward = self._reward_wrapper(reward)
         done = self._done_wrapper(done)
@@ -96,18 +96,13 @@ class MicroRTSVecEnv(object):
 
     def _obs_wrapper(self, obs):
         idx = [0, 1, 2, 3, 4, 10, 11, 12, 13, 18, 19, 20, 21, 22, 26, 27, 28]
-        self.agent1 = zip(*np.where(obs[::2, :, :, 11] == 1))
-        self.agent2 = zip(*np.where(obs[1::2, :, :, 12] == 1))
+        self.agent = list(zip(*np.where(obs[..., 11] == 1)))
         new_obs = np.repeat(obs[:, np.newaxis, :, :, idx], repeats = self.num_agents, axis = 1)
         pos = np.expand_dims(np.zeros(new_obs.shape[:-1]), axis = -1)
-        idx1 = [0] * (self.env.num_envs // 2)
-        for env, x, y in self.agent1:
-            pos[::2][env, idx1[env], x, y, 0] = 1
-            idx1[env] += 1
-        idx2 = [0] * (self.env.num_envs // 2)
-        for env, x, y in self.agent2:
-            pos[1::2][env, idx2[env], x, y, 0] = 1
-            idx2[env] += 1
+        idx = [0] * self.env.num_envs
+        for env, x, y in self.agent:
+            pos[env, idx[env], x, y, 0] = 1
+            idx[env] += 1
         new_obs = np.concatenate((new_obs, pos), axis = -1)
         return new_obs
     
@@ -122,10 +117,16 @@ class MicroRTSVecEnv(object):
     def _info_wrapper(self, info):
         return info
 
-    # TODO
     def _action_wrapper(self, action):
-        print(action.shape)
-        return action
+        new_action = np.zeros((self.env.num_envs, self.env.height, self.env.width, 7))
+        action = np.where(action == 1)[-1].reshape((self.env.num_envs, self.num_agents, -1))
+        action -= np.array([0, 3, 7])
+        idx = [0] * self.env.num_envs
+        for env, x, y in self.agent:
+            new_action[env, x, y, 0] = 5 if action[env, idx[env], 0] == 2 else action[env, idx[env], 0]
+            new_action[env, x, y, [1, 6]] = action[env, idx[env], [1, 2]]
+            idx[env] += 1
+        return new_action
     
     def render(self):
         print('render')

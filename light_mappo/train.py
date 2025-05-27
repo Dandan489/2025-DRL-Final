@@ -29,7 +29,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_selfplay_envs",
         type = int,
-        default = 16
+        default = 0
     )
     parser.add_argument(
         "--ai2s",
@@ -64,7 +64,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--reward_weight",
         type = list,
-        default = [0, 1, 0, 0, 0, 5]
+        default = [0, 0, 0, 0, 1, 5]
     )
     parser.add_argument(
         "--cycle_maps",
