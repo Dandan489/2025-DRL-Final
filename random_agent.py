@@ -70,8 +70,13 @@ env = MicroRTSGridModeVecEnv(
             + [microrts_ai.workerRushAI for _ in range(min(num_bot_envs, 2))],
             map_paths=["maps/barricades24x24.xml"],
             reward_weight=np.array([10.0, 1.0, 1.0, 0.2, 1.0, 4.0]),
-            cycle_maps="maps/barricades24x24.xml",
+            cycle_maps="maps/16x16/basesWorkers16x16A.xml",
+            autobuild = False
         )
+
+print(env.observation_space.shape)
+print(env.action_space_dims)
+
 obs = env.reset()
 done = False
 step = 0

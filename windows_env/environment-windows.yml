@@ -1,0 +1,7 @@
+name: drl-final-windows
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - poetry
+  - python=3.9.21
