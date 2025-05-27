@@ -137,7 +137,6 @@ class MicroRTSVecEnv(object):
         action = np.where(action == 1)[-1].reshape((self.env.num_envs, self.num_agents, -1))
         action -= np.array([0, 3, 7])
         for env_idx in range(self.env.num_envs):
-            print(env_idx, self.agent_id_pos_map[env_idx].items())
             for agent_id, (x, y, *_) in self.agent_id_pos_map[env_idx].items():
                 new_action[env_idx, x, y, 0] = 5 if action[env_idx, agent_id, 0] == 2 else action[env_idx, agent_id, 0]
                 new_action[env_idx, x, y, [1, 6]] = action[env_idx, agent_id, [1, 2]]
@@ -178,14 +177,9 @@ class MicroRTSVecEnv(object):
                 else:
                     self.agent_id_pos_map[env_idx][agent_id] = (x, y, t - 1, nx, ny)
                 
-                if t < 0: # not moving and attacking
-                    action_type = action[env_idx, x, y, 0]
-                    if action_type == 1:  # move
-                        direction = int(action[env_idx, x, y, 1])
-                        dx, dy = move_delta[direction]
-                        new_x, new_y = x + dx, y + dy
-
-                        if 0 <= new_x < self.env.height and 0 <= new_y < self.env.width \
-                            and obs[env_idx, new_x, new_y, 13] == 1:
-                            self.agent_id_pos_map[env_idx][agent_id] = (x, y, 8, new_x, new_y)
+                if t < 0 and obs[env_idx, x, y, 22] == 1: # moved issued
+                    direction = int(action[env_idx, x, y, 1])
+                    dx, dy = move_delta[direction]
+                    new_x, new_y = x + dx, y + dy
+                    self.agent_id_pos_map[env_idx][agent_id] = (x, y, 8 - 2, new_x, new_y)
         

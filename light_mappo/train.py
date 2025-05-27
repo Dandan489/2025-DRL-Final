@@ -30,7 +30,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_selfplay_envs",
         type = int,
-        default = 16
+        default = 2
     )
     parser.add_argument(
         "--ai2s",
@@ -50,7 +50,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--render_theme",
         type = int,
-        default = 2
+        default = 16
     )
     parser.add_argument(
         "--frame_skip",
