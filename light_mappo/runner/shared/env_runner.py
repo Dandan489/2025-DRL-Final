@@ -45,7 +45,7 @@ class EnvRunner(Runner):
                 ) = self.collect(step)
 
                 # Obser reward and next obs
-                obs, rewards, dones, infos = self.envs.step(actions_env)
+                obs, rewards, dones, infos, available_actions = self.envs.step(actions_env)
 
                 data = (
                     obs,
@@ -57,6 +57,7 @@ class EnvRunner(Runner):
                     action_log_probs,
                     rnn_states,
                     rnn_states_critic,
+                    available_actions
                 )
 
                 # insert data into buffer
@@ -110,7 +111,7 @@ class EnvRunner(Runner):
 
     def warmup(self):
         # reset env
-        obs = self.envs.reset()  # shape = [env_num, agent_num, obs_dim]
+        obs, available_actions = self.envs.reset()  # shape = [env_num, agent_num, obs_dim]
 
         # replay buffer
         # if self.use_centralized_V:
@@ -124,6 +125,7 @@ class EnvRunner(Runner):
 
         self.buffer.share_obs[0] = share_obs.copy()
         self.buffer.obs[0] = obs.copy()
+        self.buffer.available_actions[0] = available_actions.copy()
 
     @torch.no_grad()
     def collect(self, step):
@@ -140,6 +142,7 @@ class EnvRunner(Runner):
             np.concatenate(self.buffer.rnn_states[step]),
             np.concatenate(self.buffer.rnn_states_critic[step]),
             np.concatenate(self.buffer.masks[step]),
+            np.concatenate(self.buffer.available_actions[step]),
         )
         # [self.envs, agents, dim]
         values = np.array(np.split(_t2n(value), self.n_rollout_threads))  # [env_num, agent_num, 1]
@@ -190,6 +193,7 @@ class EnvRunner(Runner):
             action_log_probs,
             rnn_states,
             rnn_states_critic,
+            available_actions
         ) = data
 
         rnn_states[dones == True] = np.zeros(
@@ -220,12 +224,13 @@ class EnvRunner(Runner):
             values,
             rewards,
             masks,
+            available_actions = available_actions
         )
 
     @torch.no_grad()
     def eval(self, total_num_steps):
         eval_episode_rewards = []
-        eval_obs = self.eval_envs.reset()
+        eval_obs, eval_available_actions = self.eval_envs.reset()
 
         eval_rnn_states = np.zeros(
             (self.n_eval_rollout_threads, *self.buffer.rnn_states.shape[2:]),
@@ -239,6 +244,7 @@ class EnvRunner(Runner):
                 np.concatenate(eval_obs),
                 np.concatenate(eval_rnn_states),
                 np.concatenate(eval_masks),
+                np.concatenate(eval_available_actions),
                 deterministic=True,
             )
             eval_actions = np.array(np.split(_t2n(eval_action), self.n_eval_rollout_threads))
@@ -259,7 +265,7 @@ class EnvRunner(Runner):
                 raise NotImplementedError
 
             # Obser reward and next obs
-            eval_obs, eval_rewards, eval_dones, eval_infos = self.eval_envs.step(eval_actions_env)
+            eval_obs, eval_rewards, eval_dones, eval_infos, eval_available_actions = self.eval_envs.step(eval_actions_env)
             eval_episode_rewards.append(eval_rewards)
 
             eval_rnn_states[eval_dones == True] = np.zeros(

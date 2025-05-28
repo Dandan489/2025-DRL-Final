@@ -55,7 +55,7 @@ class SharedReplayBuffer(object):
             (self.episode_length + 1, self.n_rollout_threads, num_agents, 1), dtype=np.float32)
         self.returns = np.zeros_like(self.value_preds)
 
-        if act_space.__class__.__name__ == 'Discrete':
+        if act_space.__class__.__name__ == 'Discrete' or act_space.__class__.__name__ == 'MultiDiscrete':
             self.available_actions = np.ones((self.episode_length + 1, self.n_rollout_threads, num_agents, act_space.n),
                                              dtype=np.float32)
         else:
