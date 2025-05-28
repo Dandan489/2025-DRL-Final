@@ -72,6 +72,7 @@ class MicroRTSVecEnv(object):
         Unit Types:	4 (-, worker, light, heavy, ranged)
         Current Action:	3 (-, move, attack)
         Terrain: 2 (free, wall)
+        Position: 1 (has_agent)
         """
         new_shape = (*obs_space.shape[:-1], self.num_features)
         obs_space = Box(np.zeros(new_shape), np.ones(new_shape), shape = new_shape, dtype = np.int32)
@@ -88,6 +89,8 @@ class MicroRTSVecEnv(object):
     def step(self, action):
         action = self._action_wrapper(action)
         obs, reward, done, info = self.env.step(action)
+        if reward[0] != 0:
+            print(reward[0])
         for env_idx, to_reset in enumerate(self.to_reset):
             if to_reset:
                 self._reset_agent_positions(env_idx, obs)

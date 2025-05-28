@@ -158,7 +158,7 @@ def get_config():
     )
 
     # prepare parameters
-    parser.add_argument("--algorithm_name", type=str, default="mappo", choices=["rmappo", "mappo"])
+    parser.add_argument("--algorithm_name", type=str, default="rmappo", choices=["rmappo", "mappo"])
 
     parser.add_argument(
         "--experiment_name",
@@ -182,7 +182,7 @@ def get_config():
     parser.add_argument(
         "--n_training_threads",
         type=int,
-        default=2,
+        default=8,
         help="Number of torch threads for training",
     )
     parser.add_argument(
@@ -194,7 +194,7 @@ def get_config():
     parser.add_argument(
         "--num_env_steps",
         type=int,
-        default=10e6,
+        default=10e7,
         help="Number of environment steps to train (default: 10e6)",
     )
     parser.add_argument(
@@ -214,7 +214,7 @@ def get_config():
     )
 
     # replay buffer parameters
-    parser.add_argument("--episode_length", type=int, default=1000, help="Max length for any episode")
+    parser.add_argument("--episode_length", type=int, default=2000, help="Max length for any episode")
 
     # network parameters
     parser.add_argument(
@@ -257,13 +257,13 @@ def get_config():
     parser.add_argument(
         "--use_popart",
         action="store_true",
-        default=False,
+        default=True,
         help="by default False, use PopArt to normalize rewards.",
     )
     parser.add_argument(
         "--use_valuenorm",
         action="store_false",
-        default=True,
+        default=False,
         help="by default True, use running mean and std to normalize rewards.",
     )
     parser.add_argument(
@@ -290,7 +290,7 @@ def get_config():
     parser.add_argument(
         "--use_recurrent_policy",
         action="store_false",
-        default=False,
+        default=True,
         help="use a recurrent policy",
     )
     parser.add_argument("--recurrent_N", type=int, default=1, help="The number of recurrent layers.")
