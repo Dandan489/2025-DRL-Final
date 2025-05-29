@@ -92,10 +92,8 @@ class MicroRTSVecEnv(object):
         return obs, mask
 
     def step(self, action):
-        action = self._action_wrapper(action)
+        action, action_reward = self._action_wrapper(action)
         obs, reward, done, info = self.env.step(action)
-        if reward[0] != 0:
-            print(reward[0])
         for env_idx, to_reset in enumerate(self.to_reset):
             if to_reset:
                 self._reset_agent_positions(env_idx, obs)
@@ -106,6 +104,7 @@ class MicroRTSVecEnv(object):
         mask = self.env.get_action_mask()
         obs = self._obs_wrapper(obs)
         reward = self._reward_wrapper(reward)
+        reward += action_reward
         done = self._done_wrapper(done)
         info = self._info_wrapper(info)
         mask = self._mask_wrapper(mask)
@@ -161,12 +160,15 @@ class MicroRTSVecEnv(object):
         new_action = np.zeros((self.env.num_envs, self.env.height, self.env.width, 7))
         action = np.where(action == 1)[-1].reshape((self.env.num_envs, self.num_agents, -1))
         action -= np.array([0, 3, 7])
+        action_reward = np.zeros((self.env.num_envs, self.num_agents, 1)) 
         for env_idx in range(self.env.num_envs):
             for agent_id, (x, y, *_) in self.agent_id_pos_map[env_idx].items():
                 new_action[env_idx, x, y, 0] = 5 if action[env_idx, agent_id, 0] == 2 else action[env_idx, agent_id, 0]
+                if action[env_idx, agent_id, 0] == 0:
+                    action_reward[env_idx, agent_id, 0] = -0.1
                 new_action[env_idx, x, y, [1, 6]] = action[env_idx, agent_id, [1, 2]]
 
-        return new_action
+        return new_action, action_reward
     
     def render(self):
         print('render')

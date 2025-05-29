@@ -30,12 +30,15 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_selfplay_envs",
         type = int,
-        default = 0
+        default = 8
     )
     parser.add_argument(
         "--ai2s",
         type = list,
-        default = [microrts_ai.coacAI for _ in range(16)]
+        default = [microrts_ai.coacAI for _ in range(2)]
+            + [microrts_ai.randomBiasedAI for _ in range(2)]
+            + [microrts_ai.lightRushAI for _ in range(2)]
+            + [microrts_ai.workerRushAI for _ in range(2)],
     )
     parser.add_argument(
         "--partial_obs",
