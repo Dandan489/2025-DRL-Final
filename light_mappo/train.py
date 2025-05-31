@@ -68,7 +68,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--reward_weight",
         type = list,
-        default = [5, 1, 1, 1, 1, 1]
+        default = [50, 0, 0, 0, 1, 0]
     )
     parser.add_argument(
         "--cycle_maps",

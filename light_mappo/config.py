@@ -250,7 +250,7 @@ def get_config():
     parser.add_argument(
         "--layer_N",
         type=int,
-        default=1,
+        default=2,
         help="Number of layers for actor/critic networks",
     )
     parser.add_argument("--use_ReLU", action="store_false", default=True, help="Whether to use ReLU")
@@ -302,11 +302,11 @@ def get_config():
     )
 
     # optimizer parameters
-    parser.add_argument("--lr", type=float, default=5e-4, help="learning rate (default: 5e-4)")
+    parser.add_argument("--lr", type=float, default=2e-4, help="learning rate (default: 5e-4)")
     parser.add_argument(
         "--critic_lr",
         type=float,
-        default=5e-4,
+        default=2e-4,
         help="critic learning rate (default: 5e-4)",
     )
     parser.add_argument(
@@ -334,7 +334,7 @@ def get_config():
     parser.add_argument(
         "--num_mini_batch",
         type=int,
-        default=1,
+        default=4,
         help="number of batches for ppo (default: 1)",
     )
     parser.add_argument(
@@ -346,7 +346,7 @@ def get_config():
     parser.add_argument(
         "--value_loss_coef",
         type=float,
-        default=1,
+        default=0.5,
         help="value loss coefficient (default: 0.5)",
     )
     parser.add_argument(

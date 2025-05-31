@@ -35,7 +35,10 @@ def parse_args(args, parser):
     parser.add_argument(
         "--ai2s",
         type = list,
-        default = [microrts_ai.workerRushAI],
+        default = [microrts_ai.coacAI for _ in range(2)]
+            + [microrts_ai.randomBiasedAI for _ in range(2)]
+            + [microrts_ai.lightRushAI for _ in range(2)]
+            + [microrts_ai.workerRushAI for _ in range(2)]
     )
     parser.add_argument(
         "--partial_obs",
@@ -65,7 +68,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--reward_weight",
         type = list,
-        default = [0, 0, 0, 0, 1, 0]
+        default = [50, 0, 0, 0, 1, 0]
     )
     parser.add_argument(
         "--cycle_maps",

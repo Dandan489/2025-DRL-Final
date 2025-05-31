@@ -274,6 +274,8 @@ class EnvRunner(Runner):
             )
             eval_masks = np.ones((self.n_eval_rollout_threads, self.num_agents, 1), dtype=np.float32)
             eval_masks[eval_dones == True] = np.zeros(((eval_dones == True).sum(), 1), dtype=np.float32)
+            if eval_dones[0].all() == True:
+                print(eval_rewards[0] > 0)
 
         eval_episode_rewards = np.array(eval_episode_rewards)
         eval_env_infos = {}
