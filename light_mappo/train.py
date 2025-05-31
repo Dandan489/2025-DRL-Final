@@ -24,7 +24,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_agents",
         type = int,
-        default = 4,
+        default = 6,
         help = "number of players"
     )
     parser.add_argument(
@@ -63,12 +63,12 @@ def parse_args(args, parser):
     parser.add_argument(
         "--map_paths",
         type = list,
-        default = ["maps/AllLight.xml"]
+        default = ["maps/LHR2.xml"]
     )
     parser.add_argument(
         "--reward_weight",
         type = list,
-        default = [50, 0, 0, 0, 1, 0]
+        default = [10, 0, 0, 0, 1, 0]
     )
     parser.add_argument(
         "--cycle_maps",

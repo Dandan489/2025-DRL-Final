@@ -244,7 +244,7 @@ def get_config():
     parser.add_argument(
         "--hidden_size",
         type=int,
-        default=64,
+        default=256,
         help="Dimension of hidden layers for actor/critic networks",
     )
     parser.add_argument(
@@ -302,11 +302,11 @@ def get_config():
     )
 
     # optimizer parameters
-    parser.add_argument("--lr", type=float, default=2e-4, help="learning rate (default: 5e-4)")
+    parser.add_argument("--lr", type=float, default=5e-4, help="learning rate (default: 5e-4)")
     parser.add_argument(
         "--critic_lr",
         type=float,
-        default=2e-4,
+        default=5e-4,
         help="critic learning rate (default: 5e-4)",
     )
     parser.add_argument(
@@ -318,7 +318,7 @@ def get_config():
     parser.add_argument("--weight_decay", type=float, default=0)
 
     # ppo parameters
-    parser.add_argument("--ppo_epoch", type=int, default=15, help="number of ppo epochs (default: 15)")
+    parser.add_argument("--ppo_epoch", type=int, default=4, help="number of ppo epochs (default: 15)")
     parser.add_argument(
         "--use_clipped_value_loss",
         action="store_false",
@@ -328,7 +328,7 @@ def get_config():
     parser.add_argument(
         "--clip_param",
         type=float,
-        default=0.2,
+        default=0.1,
         help="ppo clip parameter (default: 0.2)",
     )
     parser.add_argument(

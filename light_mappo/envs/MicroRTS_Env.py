@@ -164,8 +164,8 @@ class MicroRTSVecEnv(object):
         for env_idx in range(self.env.num_envs):
             for agent_id, (x, y, *_) in self.agent_id_pos_map[env_idx].items():
                 new_action[env_idx, x, y, 0] = 5 if action[env_idx, agent_id, 0] == 2 else action[env_idx, agent_id, 0]
-                if action[env_idx, agent_id, 0] == 0 and not np.all(self.mask[env_idx, agent_id] == 0):
-                    action_reward[env_idx, agent_id, 0] = -0.1
+                # if action[env_idx, agent_id, 0] == 0 and not np.all(self.mask[env_idx, agent_id] == 0):
+                #     action_reward[env_idx, agent_id, 0] = -0.1
                 new_action[env_idx, x, y, [1, 6]] = action[env_idx, agent_id, [1, 2]]
 
         return new_action, action_reward
