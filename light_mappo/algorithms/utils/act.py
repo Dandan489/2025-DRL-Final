@@ -1,4 +1,5 @@
 from .distributions import Bernoulli, Categorical, DiagGaussian
+import numpy as np
 import torch
 import torch.nn as nn
 
@@ -33,6 +34,7 @@ class ACTLayer(nn.Module):
             for action_dim in action_dims:
                 self.action_outs.append(Categorical(inputs_dim, action_dim, use_orthogonal, gain))
             self.action_outs = nn.ModuleList(self.action_outs)
+            self.action_dims = np.concatenate((action_dims, [0])) # padding for mask index not to out of bound
         else:  # discrete + continous
             self.mixed_action = True
             continous_dim = action_space[0].shape[0]
@@ -67,12 +69,16 @@ class ACTLayer(nn.Module):
         elif self.multi_discrete:
             actions = []
             action_log_probs = []
-            for action_out in self.action_outs:
-                action_logit = action_out(x)
+            mask_st = 0
+            mask_ed = self.action_dims[0]
+            for i, action_out in enumerate(self.action_outs):
+                action_logit = action_out(x, available_actions[:, mask_st:mask_ed])
                 action = action_logit.mode() if deterministic else action_logit.sample()
                 action_log_prob = action_logit.log_probs(action)
                 actions.append(action)
                 action_log_probs.append(action_log_prob)
+                mask_st = mask_ed
+                mask_ed += self.action_dims[i + 1]
 
             actions = torch.cat(actions, -1)
             action_log_probs = torch.cat(action_log_probs, -1)
