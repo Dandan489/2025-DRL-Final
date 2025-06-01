@@ -24,7 +24,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--num_agents",
         type = int,
-        default = 6,
+        default = 4,
         help = "number of players"
     )
     parser.add_argument(
@@ -38,7 +38,7 @@ def parse_args(args, parser):
         default = [microrts_ai.coacAI for _ in range(2)]
             + [microrts_ai.randomBiasedAI for _ in range(2)]
             + [microrts_ai.lightRushAI for _ in range(2)]
-            + [microrts_ai.workerRushAI for _ in range(2)],
+            + [microrts_ai.workerRushAI for _ in range(2)]
     )
     parser.add_argument(
         "--partial_obs",
@@ -63,7 +63,7 @@ def parse_args(args, parser):
     parser.add_argument(
         "--map_paths",
         type = list,
-        default = ["maps/LHR2.xml"]
+        default = ["maps/AllLight.xml"]
     )
     parser.add_argument(
         "--reward_weight",

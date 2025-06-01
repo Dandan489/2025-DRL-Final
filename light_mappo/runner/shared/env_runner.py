@@ -230,6 +230,7 @@ class EnvRunner(Runner):
     @torch.no_grad()
     def eval(self, total_num_steps):
         eval_episode_rewards = []
+        win, loss, game = 0, 0, 0
         eval_obs, eval_available_actions = self.eval_envs.reset()
 
         eval_rnn_states = np.zeros(
@@ -238,7 +239,7 @@ class EnvRunner(Runner):
         )
         eval_masks = np.ones((self.n_eval_rollout_threads, self.num_agents, 1), dtype=np.float32)
 
-        for eval_step in range(self.episode_length):
+        for eval_step in range(total_num_steps):
             self.trainer.prep_rollout()
             eval_action, eval_rnn_states = self.trainer.policy.act(
                 np.concatenate(eval_obs),
@@ -274,8 +275,13 @@ class EnvRunner(Runner):
             )
             eval_masks = np.ones((self.n_eval_rollout_threads, self.num_agents, 1), dtype=np.float32)
             eval_masks[eval_dones == True] = np.zeros(((eval_dones == True).sum(), 1), dtype=np.float32)
-            if eval_dones[0].all() == True:
-                print(eval_rewards[0] > 0)
+            if eval_dones[0].any() == True:
+                game += 1
+                if np.all(eval_rewards[0] > 0):
+                    win += 1
+                elif np.all(eval_rewards[0] < 0):
+                    loss += 1
+                print(f"games: {game:03d} win: {win}({win / game}), loss: {loss}({loss / game})")
 
         eval_episode_rewards = np.array(eval_episode_rewards)
         eval_env_infos = {}

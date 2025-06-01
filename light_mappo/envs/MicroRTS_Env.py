@@ -1,3 +1,4 @@
+import imageio
 import numpy as np
 from gym.spaces import Box
 from gym_microrts.envs.vec_env import MicroRTSGridModeVecEnv
@@ -57,7 +58,7 @@ class MicroRTSVecEnv(object):
             autobuild = args.autobuild,
             jvm_args = args.jvm_args
         )
-        
+
         self.observation_space = [self._obs_space_wrapper(self.env.observation_space) for _ in range(self.num_agents)]
         self.share_observation_space = [self._obs_space_wrapper(self.env.observation_space) for _ in range(self.num_agents)]
         self.action_space = [MultiDiscrete() for _ in range(self.num_agents)]
@@ -68,6 +69,8 @@ class MicroRTSVecEnv(object):
 
         self.agent_id_pos_map = [None] * self.env.num_envs
         self.to_reset = [False] * self.env.num_envs
+
+        # self.writer = imageio.get_writer('./LHR2/lightRush.mp4', fps = 60)
 
     def _obs_space_wrapper(self, obs_space):
         """
@@ -108,10 +111,13 @@ class MicroRTSVecEnv(object):
         done = self._done_wrapper(done)
         info = self._info_wrapper(info)
         self.mask = self._mask_wrapper(self.mask)
-        self.env.render()
+        # self.env.render()
+        # self.writer.append_data(self.env.render('rgb_array'))
         return obs, reward, done, info, self.mask
 
     def close(self):
+        # self.writer.close()
+        # print("finish writing")
         self.env.close()
 
     def _obs_wrapper(self, obs):
