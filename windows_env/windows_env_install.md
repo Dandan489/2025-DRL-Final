@@ -1,4 +1,11 @@
-```
+### Prereq:
+
+- Python 3.8+
+- Poetry
+- Java 8.0+
+- FFmpeg
+
+```setup
 # clone repository
 git clone --recursive https://github.com/Farama-Foundation/MicroRTS-Py.git 
 conda env create -f .\windows_env\environment-windows.yml
