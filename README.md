@@ -3,6 +3,7 @@
 This repository is the PPO GridNet baseline and MAPPO implementation of our DRL 2025 final project. Note MAPPO approach can only trained on combat only map.
 
 MAPPO implementation are modified from [light_mappo](https://github.com/tinyzqh/light_mappo)
+
 PPO implemrntation are modified from [ppo](https://github.com/Farama-Foundation/MicroRTS-Py/tree/b6bf191915ab0a33116b0712315b1a1a0bc29652)
 
 ## Requirements
@@ -34,6 +35,7 @@ First put the [maps](/maps) into `MicroRTS-Py/gym_microrts/microrts/maps`
 ### PPO GridNet
 
 Move ppo/ppo_gridnet_coacAI.py to MicroRTS-Py/experiment first.
+
 Then, to train the PPO GridNet models, run this command:
 
 ```train
