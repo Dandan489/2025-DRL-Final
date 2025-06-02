@@ -3,6 +3,7 @@
 This repository is the PPO GridNet baseline and MAPPO implementation of our DRL 2025 final project. Note MAPPO approach can only trained on combat only map.
 
 MAPPO implementation are modified from [light_mappo](https://github.com/tinyzqh/light_mappo)
+PPO implemrntation are modified from [ppo](https://github.com/Farama-Foundation/MicroRTS-Py/tree/b6bf191915ab0a33116b0712315b1a1a0bc29652)
 
 ## Requirements
 
@@ -32,9 +33,11 @@ First put the [maps](/maps) into `MicroRTS-Py/gym_microrts/microrts/maps`
 
 ### PPO GridNet
 
+Move ppo/ppo_gridnet_coacAI.py to MicroRTS-Py/experiment first.
 Then, to train the PPO GridNet models, run this command:
 
 ```train
+python MicroRTS-Py/experiment/ppo_gridnet_coacAI.py --exp-name <experiment_name> --prod-mode --train-maps maps/<map_name> 
 ```
 
 ### MAPPO
@@ -52,9 +55,12 @@ For more training options, see `light_mappo/train.py` and `light_mappo/config.py
 
 ### PPO GridNet
 
+Move ppo/ppo_gridnet_eval.py to MicroRTS-Py/experiment first.
 To evaluate PPO GridNet model against AI, run:
 
 ```eval
+# default test 100 episode
+python MicroRTS-Py/experiment/ppo_gridnet_eval.py  --agent-model-path <path_to_model>  --ai <against_AI> --eval-maps maps/<map_name> 
 ```
 
 ### MAPPO
@@ -74,7 +80,7 @@ For more testing options, see `light_mappo/test.py` and `light_mappo/config.py`
 
 ### PPO GridNet
 
-PPO GridNet Pre-trained models are in
+PPO GridNet Pre-trained models are in `ppo/models`
 
 ### MAPPO
 
@@ -83,6 +89,17 @@ MAPPO Pre-trained models are in `ALLlight/models` and `LHR2/models`
 ## Results
 
 For full results and detailed analyze, see [report]()
+
+### PPO
+PPO results are shown in win rate/win/loss/tie (in 100 games)
+
+| | coacAI | lightRushAI | workerRushAI | randomBiasedAI |
+|--:|:-:|:-:|:-:|:-:|
+| light only | 0.97/97/3/0 | 0.92/92/3/5 | 0.91/91/3/6 | 0.89/89/0/11 |
+| LHR2 | 0.69/69/31/0 | 0.64/64/36/0 | 0.64/64/36/0 | 0.75/75/1/24 |
+| light only 2 | 0.77/77/18/5 | 0.75/75/20/5 | - | 0.87/87/1/12 |
+| light only 3 | 0.02/2/72/26 | 0.15/15/60/25  | - | 0.89/89/1/10 |
+
 
 ### MAPPO
 
