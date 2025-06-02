@@ -2,6 +2,8 @@
 
 This repository is the official implementation of our DRL 2025 final project. Note MAPPO approach can only trained on combat only map.
 
+MAPPO implementation are modified from [light_mappo](https://github.com/tinyzqh/light_mappo)
+
 ## Requirements
 
 The following is for WSL environment, there is also a guild for installing environment in [windows_env_install.md](/windows_env/windows_env_install.md)
@@ -26,7 +28,7 @@ python random_agent.py
 
 ## Training
 
-First put the [maps](/maps) into `MicroRTS-Py\gym_microrts\microrts\maps`
+First put the [maps](/maps) into `MicroRTS-Py/gym_microrts/microrts/maps`
 
 Then, to train the models in the paper, run this command:
 
