@@ -96,13 +96,17 @@ MAPPO results are shown in win rate/win/loss/tie (in 100 games)
 | light only 3 | 0/0/53/47 | 0/0/0/100  | - | 0.7/70/0/30 |
 
 vs caoc
+
 ![](/assets/mappo/caoc.gif)
 
 vs lightRush
+
 ![](/assets/mappo/lightRush.gif)
 
 vs workerRush
+
 ![](/assets/mappo/workerRush.gif)
 
 vs randomBiased
+
 ![](/assets/mappo/randomBiased.gif)
