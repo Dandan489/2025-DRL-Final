@@ -1,6 +1,6 @@
-# Lightweight RL Agent in Full Length Real-Time Strategy Game - MAPPO
+# Lightweight RL Agent in Full Length Real-Time Strategy Game - PPO GridNet / MAPPO
 
-This repository is the official MAPPO implementation of our DRL 2025 final project. Note MAPPO approach can only trained on combat only map.
+This repository is the PPO GridNet baseline and MAPPO implementation of our DRL 2025 final project. Note MAPPO approach can only trained on combat only map.
 
 MAPPO implementation are modified from [light_mappo](https://github.com/tinyzqh/light_mappo)
 
@@ -30,7 +30,16 @@ python random_agent.py
 
 First put the [maps](/maps) into `MicroRTS-Py/gym_microrts/microrts/maps`
 
-Then, to train the models in the paper, run this command:
+### PPO GridNet
+
+Then, to train the PPO GridNet models, run this command:
+
+```train
+```
+
+### MAPPO
+
+Then, to train the MAPPO models, run this command:
 
 ```train
 python light_mappo/train.py # default trains AllLight (light only)
@@ -41,7 +50,16 @@ For more training options, see `light_mappo/train.py` and `light_mappo/config.py
 
 ## Evaluation
 
-To evaluate model against AI, run:
+### PPO GridNet
+
+To evaluate PPO GridNet model against AI, run:
+
+```eval
+```
+
+### MAPPO
+
+To evaluate MAPPO model against AI, run:
 
 ```eval
 # default test 100 episode on AllLight2
@@ -54,11 +72,21 @@ For more testing options, see `light_mappo/test.py` and `light_mappo/config.py`
 
 ## Pre-trained Models
 
-Pre-trained models are in `ALLlight/models` and `LHR2/models`
+### PPO GridNet
+
+PPO GridNet Pre-trained models are in
+
+### MAPPO
+
+MAPPO Pre-trained models are in `ALLlight/models` and `LHR2/models`
 
 ## Results
 
-Shown in win rate/win/loss/tie (in 100 games)
+For full results and detailed analyze, see [report]()
+
+### MAPPO
+
+MAPPO results are shown in win rate/win/loss/tie (in 100 games)
 
 | | coacAI | lightRushAI | workerRushAI | randomBiasedAI |
 |--:|:-:|:-:|:-:|:-:|
@@ -66,3 +94,15 @@ Shown in win rate/win/loss/tie (in 100 games)
 | LHR2 | 0/0/100/0 | 0/0/100/0 | 0/0/100/0 | 0/0/100/0 |
 | light only 2 | 0/0/0/100 | 0/0/0/100 | - | 0.53/53/0/47 |
 | light only 3 | 0/0/53/47 | 0/0/0/100  | - | 0.7/70/0/30 |
+
+vs caoc
+![](/assets/mappo/caoc.gif)
+
+vs lightRush
+![](/assets/mappo/lightRush.gif)
+
+vs workerRush
+![](/assets/mappo/workerRush.gif)
+
+vs randomBiased
+![](/assets/mappo/randomBiased.gif)
