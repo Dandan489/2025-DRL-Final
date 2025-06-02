@@ -1,6 +1,6 @@
 # Lightweight RL Agent in Full Length Real-Time Strategy Game - MAPPO
 
-This repository is the official implementation of our DRL 2025 final project. Note MAPPO approach can only trained on combat only map.
+This repository is the official MAPPO implementation of our DRL 2025 final project. Note MAPPO approach can only trained on combat only map.
 
 MAPPO implementation are modified from [light_mappo](https://github.com/tinyzqh/light_mappo)
 
